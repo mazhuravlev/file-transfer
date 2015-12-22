@@ -24,12 +24,12 @@ class SFTPConnection implements ConnectionInterface
         // TODO: Implement pwd() method.
     }
 
-    public function upload($file)
+    public function upload($localFilename, $remoteFilename)
     {
         // TODO: Implement upload() method.
     }
 
-    public function download($remoteFileName, $filename)
+    public function download($remoteFileName, $localFilename)
     {
         // TODO: Implement download() method.
     }
@@ -37,5 +37,10 @@ class SFTPConnection implements ConnectionInterface
     public function close()
     {
         // TODO: Implement close() method.
+    }
+
+    public function exec($command)
+    {
+        // TODO: Implement exec() method.
     }
 }

@@ -28,12 +28,11 @@ class Factory
             default:
                 throw new \InvalidArgumentException('Invalid connection type');
         }
-
     }
 
     private static function getFTPConnection($host, $username, $password, $port)
     {
-        $ftpResource = ftp_connect($host, is_null($port) ? self::DEFAULT_FTP_PORT : $port);
+        $ftpResource = @ftp_connect($host, is_null($port) ? self::DEFAULT_FTP_PORT : $port);
         if($ftpResource) {
             if(ftp_login($ftpResource, $username, $password)) {
                 return new FTPConnection($ftpResource);

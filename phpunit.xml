@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<!-- see http://www.phpunit.de/wiki/Documentation -->
+<phpunit bootstrap="tests/bootstrap.php"
+         colors="false"
+         convertErrorsToExceptions="true"
+         convertNoticesToExceptions="true"
+         convertWarningsToExceptions="true"
+         stopOnFailure="true">
+    <testsuites>
+        <testsuite name="FileTransfer">
+            <directory>tests/mazhuravlev/FileTransfer</directory>
+        </testsuite>
+    </testsuites>
+</phpunit>

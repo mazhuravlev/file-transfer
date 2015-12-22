@@ -1,0 +1,3 @@
+/tests/tmpdir/*
+!/tests/tmpdir/.gitkeep
+/env.php
