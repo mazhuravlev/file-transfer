@@ -17,7 +17,7 @@ class FTPConnection implements ConnectionInterface
     public function __destruct()
     {
         if (is_resource($this->resource)) {
-            ftp_close($this->resource);
+            @ftp_close($this->resource);
         }
     }
 
@@ -38,7 +38,7 @@ class FTPConnection implements ConnectionInterface
         if(!is_resource($this->resource)) {
             throw new ConnectionException('Connection is not open');
         }
-        if (false !== $pwd = ftp_pwd($this->resource)) {
+        if (false !== $pwd = @ftp_pwd($this->resource)) {
             return $pwd;
         } else {
             throw new ConnectionException('Unable to get working directory');
@@ -80,7 +80,7 @@ class FTPConnection implements ConnectionInterface
         if (!is_writable(dirname($localFilename))) {
             throw new ConnectionException('Local directory is not writable');
         }
-        if (!ftp_get($this->resource, $localFilename, $remoteFilename, FTP_BINARY)) {
+        if (!@ftp_get($this->resource, $localFilename, $remoteFilename, FTP_BINARY)) {
             throw new ConnectionException('Unable to download file');
         }
         return $this;
@@ -91,7 +91,7 @@ class FTPConnection implements ConnectionInterface
         if(!is_resource($this->resource)) {
             throw new ConnectionException('Connection is not open');
         }
-        if ($this->resource and !ftp_close($this->resource)) {
+        if ($this->resource and !@ftp_close($this->resource)) {
             throw new ConnectionException('Unable to close FTP connection');
         }
         $this->resource = null;
@@ -103,7 +103,7 @@ class FTPConnection implements ConnectionInterface
             throw new ConnectionException('Connection is not open');
         }
         if(@ftp_exec($this->resource, $command)) {
-            return true;
+            return '';
         } else {
             throw new ConnectionException('Unable to exec FTP command');
         }
@@ -114,7 +114,7 @@ class FTPConnection implements ConnectionInterface
         if(!is_resource($this->resource)) {
             throw new ConnectionException('Connection is not open');
         }
-        if(ftp_delete($this->resource, $filename)) {
+        if(@ftp_delete($this->resource, $filename)) {
             return $this;
         } else {
             throw new ConnectionException('Unable to delete file');

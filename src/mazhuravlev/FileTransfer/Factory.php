@@ -32,7 +32,10 @@ class Factory
 
     private static function getFTPConnection($host, $username, $password, $port)
     {
-        $ftpResource = @ftp_connect($host, is_null($port) ? self::DEFAULT_FTP_PORT : $port);
+        $ftpResource = @ftp_connect(
+            $host,
+            is_null($port) ? self::DEFAULT_FTP_PORT : $port
+        );
         if($ftpResource) {
             if(ftp_login($ftpResource, $username, $password)) {
                 return new FTPConnection($ftpResource);
@@ -46,7 +49,13 @@ class Factory
 
     private static function getSFTPConnection($host, $username, $password, $port)
     {
-        $sshResource = ssh2_connect($host, is_null($port) ? self::DEFAULT_SFTP_PORT : $port);
+        if(!extension_loaded('ssh2')) {
+            throw new \ErrorException('SSH2 extension is not loaded');
+        }
+        $sshResource = ssh2_connect(
+            $host,
+            is_null($port) ? self::DEFAULT_SFTP_PORT : $port
+        );
         if($sshResource) {
             if(ssh2_auth_password($sshResource, $username, $password)) {
                 if($sftpResource = ssh2_sftp($sshResource)) {
