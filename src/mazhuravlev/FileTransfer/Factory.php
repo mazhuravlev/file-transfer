@@ -50,7 +50,7 @@ class Factory
         if($sshResource) {
             if(ssh2_auth_password($sshResource, $username, $password)) {
                 if($sftpResource = ssh2_sftp($sshResource)) {
-                    return new SFTPConnection($sftpResource);
+                    return new SFTPConnection($sftpResource, $sshResource);
                 } else {
                     throw new \RuntimeException('Unable to initialize SFTP subsystem');
                 }

@@ -16,13 +16,16 @@ class FTPConnection implements ConnectionInterface
 
     public function __destruct()
     {
-        if (!is_null($this->resource)) {
+        if (is_resource($this->resource)) {
             ftp_close($this->resource);
         }
     }
 
     public function cd($directory)
     {
+        if(!is_resource($this->resource)) {
+            throw new ConnectionException('Connection is not open');
+        }
         if (@ftp_chdir($this->resource, $directory)) {
             return $this;
         } else {
@@ -32,6 +35,9 @@ class FTPConnection implements ConnectionInterface
 
     public function pwd()
     {
+        if(!is_resource($this->resource)) {
+            throw new ConnectionException('Connection is not open');
+        }
         if (false !== $pwd = ftp_pwd($this->resource)) {
             return $pwd;
         } else {
@@ -41,6 +47,9 @@ class FTPConnection implements ConnectionInterface
 
     public function upload($localFilename, $remoteFilename)
     {
+        if(!is_resource($this->resource)) {
+            throw new ConnectionException('Connection is not open');
+        }
         if (file_exists($localFilename)) {
             $putResult = @ftp_put(
                 $this->resource,
@@ -59,6 +68,9 @@ class FTPConnection implements ConnectionInterface
 
     public function download($remoteFilename, $localFilename, $rewrite = false)
     {
+        if(!is_resource($this->resource)) {
+            throw new ConnectionException('Connection is not open');
+        }
         if (is_null($localFilename)) {
             $localFilename = $remoteFilename;
         }
@@ -76,6 +88,9 @@ class FTPConnection implements ConnectionInterface
 
     public function close()
     {
+        if(!is_resource($this->resource)) {
+            throw new ConnectionException('Connection is not open');
+        }
         if ($this->resource and !ftp_close($this->resource)) {
             throw new ConnectionException('Unable to close FTP connection');
         }
@@ -84,8 +99,11 @@ class FTPConnection implements ConnectionInterface
 
     public function exec($command)
     {
+        if(!is_resource($this->resource)) {
+            throw new ConnectionException('Connection is not open');
+        }
         if(@ftp_exec($this->resource, $command)) {
-            return $this;
+            return true;
         } else {
             throw new ConnectionException('Unable to exec FTP command');
         }
@@ -93,6 +111,9 @@ class FTPConnection implements ConnectionInterface
 
     public function delete($filename)
     {
+        if(!is_resource($this->resource)) {
+            throw new ConnectionException('Connection is not open');
+        }
         if(ftp_delete($this->resource, $filename)) {
             return $this;
         } else {

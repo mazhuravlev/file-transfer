@@ -7,8 +7,14 @@
          convertWarningsToExceptions="true"
          stopOnFailure="true">
     <testsuites>
-        <testsuite name="FileTransfer">
-            <directory>tests/mazhuravlev/FileTransfer</directory>
+        <testsuite name="FactoryTest">
+            <file>tests/mazhuravlev/FileTransfer/FactoryTest.php</file>
+        </testsuite>
+        <testsuite name="FTPConnectionTest">
+            <file>tests/mazhuravlev/FileTransfer/FTPConnectionTest.php</file>
+        </testsuite>
+        <testsuite name="SFTPConnectionTest">
+            <file>tests/mazhuravlev/FileTransfer/SFTPConnectionTest.php</file>
         </testsuite>
     </testsuites>
 </phpunit>

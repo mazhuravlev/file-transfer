@@ -23,9 +23,6 @@ interface ConnectionInterface
      * @return ConnectionInterface
      */
     public function download($remoteFilename, $localFilename);
-    /**
-     * @return ConnectionInterface
-     */
     public function exec($command);
     public function close();
 

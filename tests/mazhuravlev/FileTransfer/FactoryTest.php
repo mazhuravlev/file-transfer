@@ -17,8 +17,14 @@ class FactoryTest extends PHPUnit_Framework_TestCase
 
     public function testGetSftpConnection()
     {
-        $sftpConnection = Factory::getConnection(Factory::TYPE_SFTP, SFTP_HOST, SFTP_USER, SFTP_PASS);
+        $sftpConnection = Factory::getConnection(Factory::TYPE_SFTP, Env::SFTP_HOST, Env::SFTP_USER, Env::SFTP_PASS);
         $this->assertInstanceOf(SFTPConnection::class, $sftpConnection);
         $this->assertInstanceOf(ConnectionInterface::class, $sftpConnection);
+    }
+
+    public function testWrongConnectionType()
+    {
+        $this->setExpectedException(InvalidArgumentException::class);
+        Factory::getConnection('mysql', '', '', '');
     }
 }

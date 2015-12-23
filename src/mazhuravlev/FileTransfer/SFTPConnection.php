@@ -7,40 +7,76 @@ namespace mazhuravlev\FileTransfer;
 class SFTPConnection implements ConnectionInterface
 {
 
-    private $resource;
+    private $sftpResource, $sshResource;
 
-    public function __construct($sftpResource)
+    public function __construct($sftpResource, $sshResource)
     {
-        $this->resource = $sftpResource;
+        $this->sftpResource = $sftpResource;
+        $this->sshResource = $sshResource;
+    }
+
+    public function __destruct()
+    {
+        if(is_resource($this->sshResource)) {
+            ssh2_exec($this->sshResource, 'exit');
+        }
     }
 
     public function cd($directory)
     {
-        // TODO: Implement cd() method.
+        $this->exec("cd $directory");
+        return $this;
     }
 
     public function pwd()
     {
-        // TODO: Implement pwd() method.
+        return $this->exec('pwd');
     }
 
     public function upload($localFilename, $remoteFilename)
     {
-        // TODO: Implement upload() method.
+        if(!is_resource($this->sftpResource)) {
+            throw new ConnectionException('Connection is not open');
+        }
     }
 
     public function download($remoteFileName, $localFilename)
     {
-        // TODO: Implement download() method.
+        if(!is_resource($this->sftpResource)) {
+            throw new ConnectionException('Connection is not open');
+        }
     }
 
     public function close()
     {
-        // TODO: Implement close() method.
+        if(is_resource($this->sshResource)) {
+            ssh2_exec($this->sshResource, 'exit');
+            $this->sftpResource = null;
+        } else {
+            throw new ConnectionException('Connection is not open');
+        }
+    }
+
+    public function delete($filename)
+    {
+        if(ssh2_sftp_unlink($this->sftpResource, $filename)) {
+            return $this;
+        } else {
+            throw new ConnectionException('Unable to delete file');
+        }
     }
 
     public function exec($command)
     {
-        // TODO: Implement exec() method.
+        if(is_resource($this->sshResource)) {
+            $stream = ssh2_exec($this->sshResource, $command);
+            if(false !== $stream) {
+                return fgets($stream);
+            } else {
+                throw new ConnectionException('Unable to exec SFTP command');
+            }
+        } else {
+            throw new ConnectionException('Connection is not open');
+        }
     }
 }
