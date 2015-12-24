@@ -19,7 +19,7 @@ class SFTPConnection implements ConnectionInterface
     public function __destruct()
     {
         if(is_resource($this->sshResource)) {
-            ssh2_exec($this->sshResource, 'exit');
+            @ssh2_exec($this->sshResource, 'exit');
         }
     }
 
@@ -40,10 +40,13 @@ class SFTPConnection implements ConnectionInterface
 
     public function upload($localFilename, $remoteFilename)
     {
+        if (!file_exists($localFilename)) {
+            throw new ConnectionException('File does not exist');
+        }
         if(!is_resource($this->sftpResource)) {
             throw new ConnectionException('Connection is not open');
         }
-        $scpResult = ssh2_scp_send(
+        $scpResult = @ssh2_scp_send(
             $this->sshResource,
             $localFilename,
             $this->getRemotePath($remoteFilename)
@@ -51,16 +54,22 @@ class SFTPConnection implements ConnectionInterface
         if($scpResult) {
             return $this;
         } else {
-            throw new ConnectionException('Unable to upload file using SCP');
+            throw new ConnectionException('Unable to upload file');
         }
     }
 
-    public function download($remoteFilename, $localFilename)
+    public function download($remoteFilename, $localFilename, $overwrite = false)
     {
+        if(!$overwrite and file_exists($localFilename)) {
+            throw new ConnectionException('File exists and overwrite flag is not set');
+        }
+        if (!is_writable(dirname($localFilename))) {
+            throw new ConnectionException('Local directory is not writable');
+        }
         if(!is_resource($this->sftpResource)) {
             throw new ConnectionException('Connection is not open');
         }
-        $scpResult = ssh2_scp_recv(
+        $scpResult = @ssh2_scp_recv(
             $this->sshResource,
             $this->getRemotePath($remoteFilename),
             $localFilename
@@ -68,14 +77,14 @@ class SFTPConnection implements ConnectionInterface
         if($scpResult) {
             return $this;
         } else {
-            throw new ConnectionException('Unable to download file using SCP');
+            throw new ConnectionException('Unable to download file');
         }
     }
 
     public function close()
     {
         if(is_resource($this->sshResource)) {
-            ssh2_exec($this->sshResource, 'exit');
+            @ssh2_exec($this->sshResource, 'exit');
             $this->sftpResource = null;
         } else {
             throw new ConnectionException('Connection is not open');
@@ -84,7 +93,7 @@ class SFTPConnection implements ConnectionInterface
 
     public function delete($filename)
     {
-        $sftpResult = ssh2_sftp_unlink(
+        $sftpResult = @ssh2_sftp_unlink(
             $this->sftpResource,
             $this->getRemotePath($filename)
         );
@@ -98,11 +107,11 @@ class SFTPConnection implements ConnectionInterface
     public function exec($command)
     {
         if(is_resource($this->sshResource)) {
-            $stream = ssh2_exec($this->sshResource, $command);
+            $stream = @ssh2_exec($this->sshResource, $command);
             if(false !== $stream) {
                 stream_set_blocking($stream, true);
                 $result = stream_get_contents(
-                    ssh2_fetch_stream($stream, SSH2_STREAM_STDIO)
+                    @ssh2_fetch_stream($stream, SSH2_STREAM_STDIO)
                 );
                 if(false !== $result) {
                     return trim($result);

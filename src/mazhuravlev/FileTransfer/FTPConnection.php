@@ -23,7 +23,7 @@ class FTPConnection implements ConnectionInterface
 
     public function cd($directory)
     {
-        if(!is_resource($this->resource)) {
+        if (!is_resource($this->resource)) {
             throw new ConnectionException('Connection is not open');
         }
         if (@ftp_chdir($this->resource, $directory)) {
@@ -35,7 +35,7 @@ class FTPConnection implements ConnectionInterface
 
     public function pwd()
     {
-        if(!is_resource($this->resource)) {
+        if (!is_resource($this->resource)) {
             throw new ConnectionException('Connection is not open');
         }
         if (false !== $pwd = @ftp_pwd($this->resource)) {
@@ -47,38 +47,35 @@ class FTPConnection implements ConnectionInterface
 
     public function upload($localFilename, $remoteFilename)
     {
-        if(!is_resource($this->resource)) {
-            throw new ConnectionException('Connection is not open');
-        }
-        if (file_exists($localFilename)) {
-            $putResult = @ftp_put(
-                $this->resource,
-                is_null($remoteFilename) ? $localFilename : $remoteFilename,
-                $localFilename, FTP_BINARY
-            );
-            if ($putResult) {
-                return $this;
-            } else {
-                throw new ConnectionException('Unable to upload file');
-            }
-        } else {
+        if (!file_exists($localFilename)) {
             throw new ConnectionException('File does not exist');
         }
-    }
-
-    public function download($remoteFilename, $localFilename, $rewrite = false)
-    {
-        if(!is_resource($this->resource)) {
+        if (!is_resource($this->resource)) {
             throw new ConnectionException('Connection is not open');
         }
-        if (is_null($localFilename)) {
-            $localFilename = $remoteFilename;
+        $putResult = @ftp_put(
+            $this->resource,
+            is_null($remoteFilename) ? $localFilename : $remoteFilename,
+            $localFilename, FTP_BINARY
+        );
+        if ($putResult) {
+            return $this;
+        } else {
+            throw new ConnectionException('Unable to upload file');
         }
-        if (!$rewrite and file_exists($localFilename)) {
-            throw new ConnectionException('File exists and rewrite flag is not set');
+
+    }
+
+    public function download($remoteFilename, $localFilename, $overwrite = false)
+    {
+        if (!$overwrite and file_exists($localFilename)) {
+            throw new ConnectionException('File exists and overwrite flag is not set');
         }
         if (!is_writable(dirname($localFilename))) {
             throw new ConnectionException('Local directory is not writable');
+        }
+        if (!is_resource($this->resource)) {
+            throw new ConnectionException('Connection is not open');
         }
         if (!@ftp_get($this->resource, $localFilename, $remoteFilename, FTP_BINARY)) {
             throw new ConnectionException('Unable to download file');
@@ -88,7 +85,7 @@ class FTPConnection implements ConnectionInterface
 
     public function close()
     {
-        if(!is_resource($this->resource)) {
+        if (!is_resource($this->resource)) {
             throw new ConnectionException('Connection is not open');
         }
         if ($this->resource and !@ftp_close($this->resource)) {
@@ -99,10 +96,10 @@ class FTPConnection implements ConnectionInterface
 
     public function exec($command)
     {
-        if(!is_resource($this->resource)) {
+        if (!is_resource($this->resource)) {
             throw new ConnectionException('Connection is not open');
         }
-        if(@ftp_exec($this->resource, $command)) {
+        if (@ftp_exec($this->resource, $command)) {
             return '';
         } else {
             throw new ConnectionException('Unable to exec FTP command');
@@ -111,10 +108,10 @@ class FTPConnection implements ConnectionInterface
 
     public function delete($filename)
     {
-        if(!is_resource($this->resource)) {
+        if (!is_resource($this->resource)) {
             throw new ConnectionException('Connection is not open');
         }
-        if(@ftp_delete($this->resource, $filename)) {
+        if (@ftp_delete($this->resource, $filename)) {
             return $this;
         } else {
             throw new ConnectionException('Unable to delete file');

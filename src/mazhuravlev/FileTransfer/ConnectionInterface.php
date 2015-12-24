@@ -22,11 +22,15 @@ interface ConnectionInterface
     /**
      * @return ConnectionInterface
      */
-    public function download($remoteFilename, $localFilename);
+    public function download($remoteFilename, $localFilename, $overwrite = false);
     /**
      * @return string
      */
     public function exec($command);
     public function close();
+    /**
+     * @return ConnectionInterface
+     */
+    public function delete($remoteFilename);
 
 }
